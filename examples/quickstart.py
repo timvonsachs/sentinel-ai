@@ -2,7 +2,12 @@
 Quickstart: Give your AI an immune system in 3 lines.
 """
 
+import os
 import random
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from sentinel import Organism
 
 random.seed(42)
