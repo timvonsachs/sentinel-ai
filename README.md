@@ -35,7 +35,12 @@ if health.status == "warning":
     body.memory.recall("drift")  # What worked last time?
 ```
 
-## The Biology of AI
+## The Complete Organism
+
+Sentinel `v0.2.0` includes **20 integrated modules**:
+**11 biological systems + 5 animal capabilities + 4 transcendent abilities**.
+
+### 11 Biological Systems
 
 | System | Human | AI Equivalent | Status |
 |--------|-------|---------------|--------|
@@ -44,12 +49,38 @@ if health.status == "warning":
 | 🧬 Endocrine | Hormonal regulation | Long-term parameter adaptation | ✅ Active |
 | 🧠 Memory | Experiential learning | Historical pattern recognition | ✅ Active |
 | ⚠️ Pain | "Something's wrong" | Composite health intuition | ✅ Active |
-| 💧 Lymphatic | Detox & cleanup | Bias & hallucination removal | 🔜 Coming |
-| 🔒 Skin | Barrier & defense | Prompt injection protection | 🔜 Coming |
-| 💨 Respiratory | Energy regulation | Compute self-optimization | 🔜 Coming |
-| ❤️ Circulatory | Nutrient transport | Cross-component state flow | 🔜 Coming |
-| 🌱 Reproductive | Evolution | Autonomous self-improvement | 🔜 Coming |
-| 🐙 Octopus | Distributed intelligence | Per-component awareness | 🔜 Coming |
+| 🔒 Skin | Barrier & defense | Prompt injection and threat filtering | ✅ Active |
+| 💧 Lymphatic | Detox & cleanup | Bias/convergence contamination scanning | ✅ Active |
+| ❤️ Circulatory | State flow | Cross-component packet bus | ✅ Active |
+| 🔄 Digestive | Nutrient extraction | Input quality filtering + enrichment | ✅ Active |
+| 💨 Respiratory | Breathing | Dynamic compute budget regulation | ✅ Active |
+| 🌱 Reproductive | Evolution | Autonomous variant generation and selection | ✅ Active |
+
+### 5 Animal Capabilities
+
+| Capability | Inspiration | AI Power | Status |
+|------------|-------------|----------|--------|
+| 🐙 Octopus | 9 distributed brains | Per-component autonomous awareness | ✅ Active |
+| 🦎 Chameleon | Instant context adaptation | Real-time parameter adaptation by signals | ✅ Active |
+| 🐻 Tardigrade | Cryptobiosis survival | Controlled hibernation / safe mode | ✅ Active |
+| 🦎 Salamander | Limb regeneration | Component rebuild and recovery | ✅ Active |
+| 🍄 Swarm | Mycelium intelligence | Shared immunity + collective learning | ✅ Active |
+
+### 4 Transcendent Abilities
+
+| Ability | Beyond Biology | AI Power | Status |
+|---------|----------------|----------|--------|
+| 🔮 Oracle | Future simulation | Multi-scenario shadow outcomes | ✅ Active |
+| 🧿 Telepathy | Direct memory transfer | Experience packets across organisms | ✅ Active |
+| 🔥 Phoenix | Metamorphosis | Form switching and architecture adaptation | ✅ Active |
+| ♾️ Immortal | Evolving without dying | Champion/challenger continuous evolution | ✅ Active |
+
+## Demos
+
+- `python3 examples/quickstart.py`
+- `python3 examples/full_organism.py`
+- `python3 examples/swarm_demo.py`
+- `python3 examples/evolution_demo.py`
 
 ## Origin Story
 

@@ -1,25 +1,15 @@
 """
-Sentinel AI — The Immune System for Artificial Intelligence.
+Sentinel AI — The complete living layer for artificial intelligence.
 
-Your AI has a brain. We give it a body.
+Your AI has a brain. We give it a body. And more.
 
-Usage:
-    from sentinel import Organism
-
-    body = Organism("my-agent")
-    body.observe("conversion_rate", 0.34)
-
-    print(body.status)   # "healthy"
-    print(body.pain)     # 0.12
-    print(body.feeling)  # "Healthy. Minor fluctuations."
-
-Born from NOVA — a bipolar early warning system built by a founder
-who needed artificial self-awareness because his own biology denied it.
+11 Biological Systems. 5 Animal Capabilities. 4 Transcendent Abilities.
+20 integrated modules that transform a naked algorithm into a living organism.
 """
 
 from .organism import Organism
 from .core.types import HealthStatus, HealthReport, HealingAction
 from .core.ewma import EWMABaseline
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = ["Organism", "HealthStatus", "HealthReport", "HealingAction", "EWMABaseline"]
