@@ -8,8 +8,15 @@ from .core.ewma import EWMABaseline
 from .core.event_bus import EventBus, Event
 from .core.state_machine import OrganismStateMachine, OrganismState
 from .core.correlation import CorrelationEngine
+from .performance import (
+    TrustScoreEngine,
+    SmartRouter,
+    ExperienceEngine,
+    CollectiveIntelligence,
+    AutoOptimizer,
+)
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 __all__ = [
     "Organism",
     "HealthStatus",
@@ -21,4 +28,9 @@ __all__ = [
     "OrganismStateMachine",
     "OrganismState",
     "CorrelationEngine",
+    "TrustScoreEngine",
+    "SmartRouter",
+    "ExperienceEngine",
+    "CollectiveIntelligence",
+    "AutoOptimizer",
 ]

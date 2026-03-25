@@ -29,6 +29,11 @@ from .transcendence.oracle import OracleVision
 from .transcendence.telepathy import TelepathyBridge
 from .transcendence.phoenix import PhoenixMetamorphosis
 from .transcendence.immortal import ImmortalEvolution
+from .performance.trust_score import TrustScoreEngine
+from .performance.smart_router import SmartRouter
+from .performance.experience_engine import ExperienceEngine
+from .performance.collective_intelligence import CollectiveIntelligence
+from .performance.auto_optimize import AutoOptimizer
 from .core.types import HealthStatus, HealthReport
 import json
 import time
@@ -74,6 +79,13 @@ class Organism:
         self.telepathy = TelepathyBridge(name)
         self.phoenix = PhoenixMetamorphosis()
         self.immortal = ImmortalEvolution()
+
+        # Performance layer
+        self.trust = TrustScoreEngine()
+        self.router = SmartRouter()
+        self.experience = ExperienceEngine()
+        self.collective = CollectiveIntelligence(name)
+        self.optimizer = AutoOptimizer()
 
         self._setup_defaults()
         self._wire_event_bus()
@@ -492,6 +504,13 @@ class Organism:
                 "phoenix_form": self.phoenix.current_form,
                 "immortal_generation": self.immortal.generation_count,
                 "plugins": list(self._plugins.keys()),
+            },
+            "performance": {
+                "trust": self.trust.report(),
+                "router": self.router.cost_report(),
+                "experience": self.experience.report(),
+                "collective": self.collective.report(),
+                "optimizer": self.optimizer.report(),
             },
             "event_bus": self.bus.stats(),
         }
