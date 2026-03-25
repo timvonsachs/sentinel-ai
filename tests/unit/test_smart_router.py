@@ -23,3 +23,11 @@ def test_router_cost_report_tracks_savings():
     report = router.cost_report()
     assert report["total_queries"] == 20
     assert report["total_savings"] >= 0
+
+
+def test_router_prefers_top_model_for_complex_coding_query():
+    router = _router()
+    decision = router.route(
+        "Write a Python function implementing merge sort with error handling and tests."
+    )
+    assert decision.selected_model == "gpt-4o"

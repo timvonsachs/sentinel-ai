@@ -59,15 +59,28 @@ class SmartRouter:
 
     def _setup_default_complexity_rules(self):
         self.complexity_rules = [
-            {"pattern": r"^(what|when|where|who|how much|how many)\b.{0,50}\?$", "complexity": 0.1, "reason": "simple_factual_question"},
-            {"pattern": r"^(yes|no|true|false|ok|thanks|hello|hi|hey)\b", "complexity": 0.05, "reason": "trivial_input"},
-            {"pattern": r"^.{0,30}$", "complexity": 0.1, "reason": "very_short_query"},
-            {"pattern": r"(explain|describe|compare|list|summarize)\b", "complexity": 0.5, "reason": "explanation_needed"},
+            {"pattern": r"^(yes|no|ok|true|false|thanks|thank you|hello|hi|hey|bye|sure)\b", "complexity": 0.05, "reason": "trivial_input"},
+            {"pattern": r"^(what|when|where|who|how much|how many)\b.{0,80}\?$", "complexity": 0.15, "reason": "simple_factual_question"},
+            {"pattern": r"^.{0,40}$", "complexity": 0.15, "reason": "very_short_query"},
+            {"pattern": r"(explain|describe|summarize|list|tell me about)\b", "complexity": 0.45, "reason": "explanation_needed"},
             {"pattern": r"(help me|can you|could you|please)\b.{50,}", "complexity": 0.5, "reason": "moderate_request"},
-            {"pattern": r"(analyze|evaluate|review|assess|critique)\b", "complexity": 0.8, "reason": "analysis_required"},
-            {"pattern": r"(code|program|implement|build|create|write).{100,}", "complexity": 0.85, "reason": "complex_generation"},
-            {"pattern": r".{500,}", "complexity": 0.7, "reason": "long_input"},
-            {"pattern": r"(legal|medical|financial|contract|diagnos)", "complexity": 0.9, "reason": "high_risk_domain"},
+            {"pattern": r".{200,400}", "complexity": 0.5, "reason": "medium_input"},
+            {"pattern": r"(analyze|evaluate|review|assess|critique|compare and contrast)\b", "complexity": 0.8, "reason": "analysis_required"},
+            {
+                "pattern": r"(write|create|generate|compose|draft).{0,20}(essay|article|report|story|code|function|program|script|implementation)",
+                "complexity": 0.85,
+                "reason": "complex_generation",
+            },
+            {"pattern": r"(code|program|implement|build|develop|debug|fix|refactor)\b", "complexity": 0.8, "reason": "coding_task"},
+            {"pattern": r".{400,}", "complexity": 0.7, "reason": "long_input"},
+            {"pattern": r"(legal|medical|financial|contract|diagnos|compliance|regulation)", "complexity": 0.9, "reason": "high_risk_domain"},
+            {"pattern": r"(step.by.step|detailed|comprehensive|thorough|in.depth)", "complexity": 0.8, "reason": "depth_requested"},
+            {
+                "pattern": r"(python|javascript|typescript|rust|java|sql|react|api)\b.*\b(sort|algorithm|implement|build|create|function|class)",
+                "complexity": 0.85,
+                "reason": "specific_coding_task",
+            },
+            {"pattern": r".{600,}", "complexity": 0.8, "reason": "very_long_input"},
         ]
 
     def add_complexity_rule(self, pattern: str, complexity: float, reason: str = ""):
@@ -107,7 +120,14 @@ class SmartRouter:
             complexity *= 0.7
 
         if required_quality is None:
-            required_quality = 0.5 + (complexity * 0.45)
+            if complexity >= 0.8:
+                required_quality = 0.90
+            elif complexity >= 0.6:
+                required_quality = 0.80
+            elif complexity >= 0.3:
+                required_quality = 0.65
+            else:
+                required_quality = 0.50
 
         scored = []
         for name, model in self.models.items():
@@ -125,8 +145,12 @@ class SmartRouter:
             speed_score = 1.0 / (model.speed_ms + 1)
             if prefer_speed:
                 total_score = quality_surplus * 0.2 + cost_score * 0.3 + speed_score * 0.5
+            elif complexity >= 0.7:
+                total_score = quality_surplus * 0.6 + cost_score * 0.3 + speed_score * 0.1
+            elif complexity >= 0.4:
+                total_score = quality_surplus * 0.4 + cost_score * 0.5 + speed_score * 0.1
             else:
-                total_score = quality_surplus * 0.3 + cost_score * 0.6 + speed_score * 0.1
+                total_score = quality_surplus * 0.2 + cost_score * 0.7 + speed_score * 0.1
             scored.append((name, total_score, est_cost))
 
         if not scored:
