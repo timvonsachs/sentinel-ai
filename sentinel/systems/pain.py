@@ -31,6 +31,7 @@ class PainSense:
             "skin": 0.15,
         }
         self.history: List[Dict] = []
+        self.event_weight: float = 0.1
 
     def score(self, organism: "Organism") -> float:
         """
@@ -71,6 +72,14 @@ class PainSense:
             signals["endocrine"] = endo_pain
             total_pain += endo_pain * self.weights.get("endocrine", 0.15)
             total_weight += self.weights.get("endocrine", 0.15)
+
+        # Event-bus pain signal (recent high severity events)
+        if hasattr(organism, "bus"):
+            recent_events = organism.bus.history(min_severity=2, seconds=300)
+            event_pain = min(1.0, len(recent_events) / 20.0)
+            signals["events"] = event_pain
+            total_pain += event_pain * self.event_weight
+            total_weight += self.event_weight
 
         composite = total_pain / total_weight if total_weight > 0 else 0
 

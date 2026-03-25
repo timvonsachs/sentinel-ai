@@ -5,7 +5,7 @@ Three independent detection mechanisms from NOVA:
 3. Velocity: sudden jumps
 """
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from .ewma import Observation
 
@@ -43,6 +43,34 @@ class DetectionEngine:
         alerts.extend(self._check_trend(metric, history))
         alerts.extend(self._check_velocity(metric, history))
         return alerts
+
+    def check_composite(self, metric_histories: Dict[str, List[Observation]]) -> List[Alert]:
+        """
+        Cross-metric composite detection.
+        Emits alert when several metrics are simultaneously in warning zone.
+        """
+        severe_metrics = []
+        for metric, history in metric_histories.items():
+            if not history:
+                continue
+            latest = history[-1].z_score
+            if abs(latest) >= self.watch_threshold:
+                severe_metrics.append((metric, latest))
+
+        if len(severe_metrics) >= 2:
+            avg_abs = sum(abs(z) for _, z in severe_metrics) / len(severe_metrics)
+            severity = "critical" if avg_abs >= self.warning_threshold else "warning"
+            return [
+                Alert(
+                    type="composite",
+                    severity=severity,
+                    metric="multi_metric",
+                    message=f"{len(severe_metrics)} metrics deviating simultaneously",
+                    z_score=avg_abs,
+                    duration=len(severe_metrics),
+                )
+            ]
+        return []
 
     def _check_persistence(self, metric: str, history: List[Observation]) -> List[Alert]:
         if len(history) < self.persistence_days:

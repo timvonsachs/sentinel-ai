@@ -32,6 +32,7 @@ class ImmuneSystem:
         self.healers: Dict[str, Dict[str, List[Callable]]] = {}
         self.healing_log: List[HealingAction] = []
         self.active = True
+        self.last_diagnosis: Dict[str, Dict] = {}
 
     def observe(self, metric: str, value: float) -> Observation:
         """Observe a metric. Build baseline. Detect drift. Heal if needed."""
@@ -47,7 +48,26 @@ class ImmuneSystem:
         for alert in alerts:
             self._try_heal(metric, alert)
 
+        self.last_diagnosis[metric] = self.diagnose(metric)
+
         return obs
+
+    def diagnose(self, metric: str) -> Dict:
+        """Lightweight diagnostic summary for a metric."""
+        if metric not in self.baselines or not self.baselines[metric].history:
+            return {"metric": metric, "status": "unknown", "signals": []}
+        bl = self.baselines[metric]
+        latest = bl.history[-1]
+        alerts = self.detector.check(metric, bl.history)
+        csd = bl.critical_slowing_down()
+        return {
+            "metric": metric,
+            "phase": bl.phase,
+            "confidence": bl.confidence,
+            "latest_z": latest.z_score,
+            "alerts": [a.type for a in alerts],
+            "phase_transition_risk": (csd or {}).get("phase_transition_risk"),
+        }
 
     def health(self, metric: Optional[str] = None) -> HealthReport:
         """Get health status for a metric or the entire system."""

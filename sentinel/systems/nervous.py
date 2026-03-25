@@ -35,6 +35,7 @@ class NervousSystem:
     def __init__(self):
         self.reflexes: List[Reflex] = []
         self.signal_log: List[Dict] = []
+        self.bus = None
 
     def reflex(self, name: str, condition: Callable, action: Callable, cooldown: float = 0):
         """Register a reflex: condition -> action."""
@@ -55,7 +56,21 @@ class NervousSystem:
                     reflex.trigger_count += 1
                     triggered.append(reflex.name)
                     self.signal_log.append({"reflex": reflex.name, "timestamp": now, "metrics": metrics})
+                    if self.bus is not None:
+                        from ..core.event_bus import Event
+
+                        self.bus.emit(
+                            Event(
+                                type="nervous.reflex",
+                                source="nervous",
+                                data={"reflex": reflex.name, "metrics": metrics},
+                                severity=2,
+                            )
+                        )
             except Exception:
                 pass
 
         return triggered
+
+    def attach_bus(self, bus):
+        self.bus = bus

@@ -58,6 +58,7 @@ class EndocrineSystem:
     def __init__(self):
         self.hormones: Dict[str, Hormone] = {}
         self.regulators: Dict[str, Callable] = {}
+        self.interactions: Dict[str, Dict[str, float]] = {}
 
     def add_hormone(
         self,
@@ -87,8 +88,23 @@ class EndocrineSystem:
         for hormone in self.hormones.values():
             hormone.decay()
 
+        # Hormone interactions (e.g. cortisol suppresses creativity)
+        for source, targets in self.interactions.items():
+            if source not in self.hormones:
+                continue
+            src_level = self.hormones[source].level
+            for target, factor in targets.items():
+                if target in self.hormones:
+                    self.hormones[target].stimulate((src_level - self.hormones[source].base_level) * factor)
+
     def get(self, hormone: str) -> float:
         return self.hormones[hormone].level if hormone in self.hormones else 0.5
 
     def state(self) -> Dict[str, float]:
         return {name: h.level for name, h in self.hormones.items()}
+
+    def couple(self, source: str, target: str, factor: float):
+        """Define hormone interaction; positive stimulates, negative suppresses."""
+        if source not in self.interactions:
+            self.interactions[source] = {}
+        self.interactions[source][target] = factor

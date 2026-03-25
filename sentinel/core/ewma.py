@@ -9,7 +9,7 @@ It's about knowing your current state RELATIVE TO YOUR OWN BASELINE.
 
 import math
 import time
-from typing import Optional, List
+from typing import Optional, Dict, List
 from dataclasses import dataclass
 
 
@@ -121,3 +121,70 @@ class EWMABaseline:
             "phase": self.phase,
             "confidence": self.confidence,
         }
+
+    def critical_slowing_down(self, window: int = 10) -> Optional[Dict]:
+        """
+        Detect critical slowing down as phase-transition early warning.
+        """
+        if len(self.history) < window * 2:
+            return None
+
+        values = [h.value for h in self.history]
+        older = values[-(window * 2) : -window]
+        recent = values[-window:]
+
+        var_older = self._calc_variance(older)
+        var_recent = self._calc_variance(recent)
+        var_ratio = (var_recent / var_older) if var_older > 0 else 1.0
+
+        ac_older = self._calc_autocorrelation(older)
+        ac_recent = self._calc_autocorrelation(recent)
+        ac_change = ac_recent - ac_older
+
+        var_trend = "rising" if var_ratio > 1.3 else "falling" if var_ratio < 0.7 else "stable"
+        ac_trend = "rising" if ac_change > 0.15 else "falling" if ac_change < -0.15 else "stable"
+
+        ew_score = 0.0
+        if var_trend == "rising":
+            ew_score += min(0.5, (var_ratio - 1.0) * 0.5)
+        if ac_trend == "rising":
+            ew_score += min(0.5, ac_change * 2.0)
+        ew_score = max(0.0, min(1.0, ew_score))
+
+        if ew_score > 0.7:
+            risk = "critical"
+        elif ew_score > 0.4:
+            risk = "high"
+        elif ew_score > 0.2:
+            risk = "moderate"
+        else:
+            risk = "low"
+
+        return {
+            "variance_trend": var_trend,
+            "variance_ratio": round(var_ratio, 3),
+            "autocorrelation_trend": ac_trend,
+            "autocorrelation_change": round(ac_change, 3),
+            "early_warning_score": round(ew_score, 3),
+            "phase_transition_risk": risk,
+            "window_size": window,
+        }
+
+    @staticmethod
+    def _calc_variance(values: List[float]) -> float:
+        if len(values) < 2:
+            return 0.0
+        mean = sum(values) / len(values)
+        return sum((v - mean) ** 2 for v in values) / (len(values) - 1)
+
+    @staticmethod
+    def _calc_autocorrelation(values: List[float], lag: int = 1) -> float:
+        if len(values) < lag + 2:
+            return 0.0
+        n = len(values)
+        mean = sum(values) / n
+        numerator = sum((values[i] - mean) * (values[i + lag] - mean) for i in range(n - lag))
+        denominator = sum((v - mean) ** 2 for v in values)
+        if denominator < 1e-10:
+            return 0.0
+        return numerator / denominator

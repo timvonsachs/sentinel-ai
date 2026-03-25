@@ -51,6 +51,7 @@ class CirculatorySystem:
         self.state_log: List[StatePacket] = []
         self.current_state: Dict[str, Any] = {}
         self.max_history = max_history
+        self.bus = None
 
     def pump(self, packet: StatePacket):
         """Pump a state packet through the system."""
@@ -81,6 +82,18 @@ class CirculatorySystem:
         # Trim history
         if len(self.state_log) > self.max_history:
             self.state_log = self.state_log[-self.max_history :]
+
+        if self.bus is not None:
+            from ..core.event_bus import Event
+
+            self.bus.emit(
+                Event(
+                    type=f"circulatory.{packet.type}",
+                    source="circulatory",
+                    data={"source": packet.source, "data": packet.data, "priority": packet.priority},
+                    severity=min(3, packet.priority),
+                )
+            )
 
     def subscribe(
         self,
@@ -124,3 +137,6 @@ class CirculatorySystem:
 
         urgency_sum = sum(p.priority for p in recent)
         return min(1.0, urgency_sum / (len(recent) * 3))
+
+    def attach_bus(self, bus):
+        self.bus = bus
